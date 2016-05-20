@@ -573,6 +573,8 @@ void cvdescriptorset::DescriptorSet::PerformCopyUpdate(const VkCopyDescriptorSet
     InvalidateBoundCmdBuffers();
 }
 
+cvdescriptorset::Descriptor::~Descriptor() {}
+
 cvdescriptorset::SamplerDescriptor::SamplerDescriptor() : sampler_(VK_NULL_HANDLE), immutable_(false) {
     updated = false;
     descriptor_class = PlainSampler;

@@ -145,7 +145,7 @@ typedef enum _DescriptorClass { PlainSampler, ImageSampler, Image, TexelBuffer, 
 
 class Descriptor {
   public:
-    virtual ~Descriptor(){};
+    virtual ~Descriptor() = 0;
     virtual void WriteUpdate(const VkWriteDescriptorSet *, const uint32_t) = 0;
     virtual void CopyUpdate(const Descriptor *) = 0;
     virtual DescriptorClass GetClass() const { return descriptor_class; };
@@ -169,6 +169,7 @@ class SamplerDescriptor : public Descriptor {
   public:
     SamplerDescriptor();
     SamplerDescriptor(const VkSampler *);
+    ~SamplerDescriptor() override{};
     void WriteUpdate(const VkWriteDescriptorSet *, const uint32_t) override;
     void CopyUpdate(const Descriptor *) override;
     virtual bool IsImmutableSampler() const override { return immutable_; };
@@ -184,6 +185,7 @@ class ImageSamplerDescriptor : public Descriptor {
   public:
     ImageSamplerDescriptor();
     ImageSamplerDescriptor(const VkSampler *);
+    ~ImageSamplerDescriptor() override{};
     void WriteUpdate(const VkWriteDescriptorSet *, const uint32_t) override;
     void CopyUpdate(const Descriptor *) override;
     VkSampler GetSampler() const { return sampler_; }
@@ -200,6 +202,7 @@ class ImageSamplerDescriptor : public Descriptor {
 class ImageDescriptor : public Descriptor {
   public:
     ImageDescriptor(const VkDescriptorType);
+    ~ImageDescriptor() override{};
     void WriteUpdate(const VkWriteDescriptorSet *, const uint32_t) override;
     void CopyUpdate(const Descriptor *) override;
     virtual bool IsStorage() const override { return storage_; }
@@ -215,6 +218,7 @@ class ImageDescriptor : public Descriptor {
 class TexelDescriptor : public Descriptor {
   public:
     TexelDescriptor(const VkDescriptorType);
+    ~TexelDescriptor() override{};
     void WriteUpdate(const VkWriteDescriptorSet *, const uint32_t) override;
     void CopyUpdate(const Descriptor *) override;
     virtual bool IsStorage() const override { return storage_; }
@@ -228,6 +232,7 @@ class TexelDescriptor : public Descriptor {
 class BufferDescriptor : public Descriptor {
   public:
     BufferDescriptor(const VkDescriptorType);
+    ~BufferDescriptor() override{};
     void WriteUpdate(const VkWriteDescriptorSet *, const uint32_t) override;
     void CopyUpdate(const Descriptor *) override;
     virtual bool IsDynamic() const override { return dynamic_; }
