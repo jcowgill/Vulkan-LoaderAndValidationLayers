@@ -34,7 +34,6 @@
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
-#include <list>
 #include <map>
 #include <mutex>
 #include <set>
@@ -92,71 +91,6 @@ using std::unordered_set;
 // WSI Image Objects bypass usual Image Object creation methods.  A special Memory
 // Object value will be used to identify them internally.
 static const VkDeviceMemory MEMTRACKER_SWAP_CHAIN_IMAGE_KEY = (VkDeviceMemory)(-1);
-
-// Track command pools and their command buffers
-struct CMD_POOL_INFO {
-    VkCommandPoolCreateFlags createFlags;
-    uint32_t queueFamilyIndex;
-    list<VkCommandBuffer> commandBuffers; // list container of cmd buffers allocated from this pool
-};
-
-struct devExts {
-    bool wsi_enabled;
-    unordered_map<VkSwapchainKHR, SWAPCHAIN_NODE *> swapchainMap;
-    unordered_map<VkImage, VkSwapchainKHR> imageToSwapchainMap;
-};
-
-// fwd decls
-struct shader_module;
-
-// TODO : Split this into separate structs for instance and device level data?
-struct layer_data {
-    VkInstance instance;
-
-    debug_report_data *report_data;
-    std::vector<VkDebugReportCallbackEXT> logging_callback;
-    VkLayerDispatchTable *device_dispatch_table;
-    VkLayerInstanceDispatchTable *instance_dispatch_table;
-
-    devExts device_extensions;
-    unordered_set<VkQueue> queues;  // all queues under given device
-    // Global set of all cmdBuffers that are inFlight on this device
-    unordered_set<VkCommandBuffer> globalInFlightCmdBuffers;
-    // Layer specific data
-    unordered_map<VkSampler, unique_ptr<SAMPLER_NODE>> samplerMap;
-    unordered_map<VkImageView, VkImageViewCreateInfo> imageViewMap;
-    unordered_map<VkImage, IMAGE_NODE> imageMap;
-    unordered_map<VkBufferView, VkBufferViewCreateInfo> bufferViewMap;
-    unordered_map<VkBuffer, BUFFER_NODE> bufferMap;
-    unordered_map<VkPipeline, PIPELINE_NODE *> pipelineMap;
-    unordered_map<VkCommandPool, CMD_POOL_INFO> commandPoolMap;
-    unordered_map<VkDescriptorPool, DESCRIPTOR_POOL_NODE *> descriptorPoolMap;
-    unordered_map<VkDescriptorSet, cvdescriptorset::DescriptorSet *> setMap;
-    unordered_map<VkDescriptorSetLayout, cvdescriptorset::DescriptorSetLayout *> descriptorSetLayoutMap;
-    unordered_map<VkPipelineLayout, PIPELINE_LAYOUT_NODE> pipelineLayoutMap;
-    unordered_map<VkDeviceMemory, DEVICE_MEM_INFO> memObjMap;
-    unordered_map<VkFence, FENCE_NODE> fenceMap;
-    unordered_map<VkQueue, QUEUE_NODE> queueMap;
-    unordered_map<VkEvent, EVENT_NODE> eventMap;
-    unordered_map<QueryObject, bool> queryToStateMap;
-    unordered_map<VkQueryPool, QUERY_POOL_NODE> queryPoolMap;
-    unordered_map<VkSemaphore, SEMAPHORE_NODE> semaphoreMap;
-    unordered_map<VkCommandBuffer, GLOBAL_CB_NODE *> commandBufferMap;
-    unordered_map<VkFramebuffer, FRAMEBUFFER_NODE> frameBufferMap;
-    unordered_map<VkImage, vector<ImageSubresourcePair>> imageSubresourceMap;
-    unordered_map<ImageSubresourcePair, IMAGE_LAYOUT_NODE> imageLayoutMap;
-    unordered_map<VkRenderPass, RENDER_PASS_NODE *> renderPassMap;
-    unordered_map<VkShaderModule, unique_ptr<shader_module>> shaderModuleMap;
-    VkDevice device;
-
-    // Device specific data
-    PHYS_DEV_PROPERTIES_NODE phys_dev_properties;
-    VkPhysicalDeviceMemoryProperties phys_dev_mem_props;
-
-    layer_data()
-        : report_data(nullptr), device_dispatch_table(nullptr), instance_dispatch_table(nullptr), device_extensions(),
-          device(VK_NULL_HANDLE), phys_dev_properties{}, phys_dev_mem_props{} {};
-};
 
 // TODO : Do we need to guard access to layer_data_map w/ lock?
 static unordered_map<void *, layer_data *> layer_data_map;
