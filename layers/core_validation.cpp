@@ -2133,6 +2133,15 @@ static bool attachment_references_compatible(const uint32_t index, const VkAttac
                                              const uint32_t primaryCount, const VkAttachmentDescription *pPrimaryAttachments,
                                              const VkAttachmentReference *pSecondary, const uint32_t secondaryCount,
                                              const VkAttachmentDescription *pSecondaryAttachments) {
+    // Check potential NULL cases first to avoid nullptr issues later
+    if (pPrimary == NULL) {
+        if (pSecondary == NULL) {
+            return true;
+        }
+        return false;
+    } else if (pSecondary == NULL) {
+        return false;
+    }
     if (index >= primaryCount) { // Check secondary as if primary is VK_ATTACHMENT_UNUSED
         if (VK_ATTACHMENT_UNUSED == pSecondary[index].attachment)
             return true;
@@ -2150,7 +2159,7 @@ static bool attachment_references_compatible(const uint32_t index, const VkAttac
     return false;
 }
 
-// For give primary and secondary RenderPass objects, verify that they're compatible
+// For given primary and secondary RenderPass objects, verify that they're compatible
 static bool verify_renderpass_compatibility(const layer_data *my_data, const VkRenderPass primaryRP, const VkRenderPass secondaryRP,
                                             string &errorMsg) {
     auto primary_render_pass = getRenderPass(my_data, primaryRP);
@@ -8181,6 +8190,7 @@ CmdWriteTimestamp(VkCommandBuffer commandBuffer, VkPipelineStageFlagBits pipelin
 VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(VkDevice device, const VkFramebufferCreateInfo *pCreateInfo,
                                                  const VkAllocationCallbacks *pAllocator,
                                                  VkFramebuffer *pFramebuffer) {
+    // TODO : Verify that renderPass FB is created with is compatible with FB
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     VkResult result = dev_data->device_dispatch_table->CreateFramebuffer(device, pCreateInfo, pAllocator, pFramebuffer);
     if (VK_SUCCESS == result) {
