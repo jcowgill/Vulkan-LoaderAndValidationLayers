@@ -2596,40 +2596,6 @@ static void demo_init_vk(struct demo *demo) {
                  "vkEnumeratePhysicalDevices Failure");
     }
 
-    /* Look for validation layers */
-    validation_found = 0;
-    demo->enabled_layer_count = 0;
-    uint32_t device_layer_count = 0;
-    err =
-        vkEnumerateDeviceLayerProperties(demo->gpu, &device_layer_count, NULL);
-    assert(!err);
-
-    if (device_layer_count > 0) {
-        VkLayerProperties *device_layers =
-            malloc(sizeof(VkLayerProperties) * device_layer_count);
-        err = vkEnumerateDeviceLayerProperties(demo->gpu, &device_layer_count,
-                                               device_layers);
-        assert(!err);
-
-        if (demo->validate) {
-            validation_found = demo_check_layers(device_validation_layer_count,
-                                                 demo->device_validation_layers,
-                                                 device_layer_count,
-                                                 device_layers);
-            demo->enabled_layer_count = device_validation_layer_count;
-        }
-
-        free(device_layers);
-    }
-
-    if (demo->validate && !validation_found) {
-        ERR_EXIT("vkEnumerateDeviceLayerProperties failed to find "
-                 "a required validation layer.\n\n"
-                 "Please look at the Getting Started guide for additional "
-                 "information.\n",
-                 "vkCreateDevice Failure");
-    }
-
     /* Look for device extensions */
     uint32_t device_extension_count = 0;
     VkBool32 swapchainExtFound = 0;
